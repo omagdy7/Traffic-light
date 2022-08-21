@@ -1,3 +1,9 @@
+#Project specific
+*.dep
+*.ewt
+*.ewp
+*.ewd
+
 # Prerequisites
 *.d
 
