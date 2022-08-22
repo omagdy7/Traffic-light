@@ -1,9 +1,6 @@
 #include "color.h"
 #include <stdint.h>
 
-#define LED_RED (1U << 1)
-#define LED_BLUE (1U << 2)
-#define LED_GREEN (1U << 3)
 
 void set_color(uint8_t color) {
 	switch (color) {
@@ -15,6 +12,9 @@ void set_color(uint8_t color) {
 			break;
 		case GREEN:
       GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0x8);
+			break;
+		case YELLOW:
+      GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0xA);
 			break;
 		case WHITE:
       GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0xe);
