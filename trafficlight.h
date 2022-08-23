@@ -18,7 +18,6 @@ typedef struct Traffic{
   uint8_t  red;
   uint8_t  yellow;
   uint8_t  green;
-  uint32_t prevPeriod;
 } Traffic;
 
 extern Traffic tf1;
