@@ -1,6 +1,4 @@
-#include "color.h"
-#include <stdint.h>
-
+#include "trafficlight.h"
 
 void set_color(uint8_t color) {
   uint32_t pins = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;

@@ -1,5 +1,3 @@
-#include "tivaware.h"
-
 
 #define LED_RED (1U << 1)
 #define LED_BLUE (1U << 2)
@@ -14,12 +12,12 @@
 #define YELLOW_TF3 8
 #define GREEN_TF3 9
 #define PORTF GPIO_PORTF_DATA_R
-// #define RED 1
+#define RED 1
+#define YELLOW 2
+#define GREEN 3
 // #define BLUE 2
-// #define GREEN 3
 // #define MAGENTA 4
 // #define CYAN 5
-// #define YELLOW 6
 // #define WHITE 7
 
 

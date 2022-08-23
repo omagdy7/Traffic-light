@@ -1,11 +1,27 @@
 #include "trafficlight.h"
 
+
+void set_tf_color(Traffic tf, uint8_t color) {
+  uint32_t pins = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;
+	switch (color) {
+		case RED:
+      GPIOPinWrite(tf.port, pins, (1 << tf.red));
+			break;
+		case YELLOW:
+      GPIOPinWrite(tf.port ,pins, (1 << tf.yellow));
+			break;
+		case GREEN:
+      GPIOPinWrite(tf.port ,pins, (1 << tf.green));
+			break;
+	}
+}
+
 void PortInit(uint32_t port, uint32_t clk) {
-  uint32_t pins = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;
+  uint32_t pins = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;
   SysCtlPeripheralEnable(clk);
   while(!SysCtlPeripheralReady(clk)) {};
   GPIOUnlockPin(port, pins);
-  GPIOPinTypeGPIOInput(port, GPIO_PIN_0);
+  // GPIOPinTypeGPIOInput(port, GPIO_PIN_0);
   GPIOPinTypeGPIOOutput(port, pins);
   GPIOPadConfigSet (port, GPIO_PIN_0 | GPIO_PIN_4 | GPIO_PIN_5, 
   GPIO_STRENGTH_2MA,GPIO_PIN_TYPE_STD_WPU);
