@@ -1,12 +1,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "tivaware.h"
-#include "color.h"
 
 #define TIVA_CLK 16e6
 #define GREEN_PERIOD TIVA_CLK * 5
 #define YELLOW_PERIOD TIVA_CLK * 2
 #define RED_PERIOD TIVA_CLK * 7
+#define RED 1
+#define YELLOW 2
+#define GREEN 3
 
 
 typedef struct Traffic{
@@ -15,6 +17,7 @@ typedef struct Traffic{
   uint8_t  red;
   uint8_t  yellow;
   uint8_t  green;
+  uint32_t prevPeriod;
 } Traffic;
 
 extern Traffic tf1;
