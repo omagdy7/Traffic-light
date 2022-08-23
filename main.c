@@ -1,67 +1,62 @@
-#include "color.h"
-#include "stdio.h"
-#include <stdint.h>
+#include "trafficlight.h"
 
-int cnt = 1;
-#define GREEN_PERIOD 80000000
-#define YELLOW_PERIOD 48000000
-#define RED_PERIOD 16000000
-uint8_t cur_color = GREEN;
-uint32_t period = GREEN_PERIOD;
-
-
-
+uint8_t cur_color_1 = RED_TF1;
+uint8_t cur_color_2 = YELLOW_TF2;
+uint32_t period_1 = RED_PERIOD;
+uint32_t period_2 = GREEN_PERIOD;
 
 void Timer0_Handler() {
   TimerIntClear(TIMER0_BASE, TIMER_BOTH);
-  switch(cur_color) {
-    case RED: 
-      cur_color = GREEN;
-      set_color(cur_color);
+  switch(cur_color_1) {
+    case RED_TF1: 
+      cur_color_1 = GREEN_TF1;
+      set_color(cur_color_1);
       TimerLoadSet(TIMER0_BASE, TIMER_BOTH, GREEN_PERIOD);
       break;
-    case YELLOW: 
-      cur_color = RED;
-      set_color(cur_color);
+    case YELLOW_TF1: 
+      cur_color_1 = RED_TF1;
+      set_color(cur_color_1);
       TimerLoadSet(TIMER0_BASE, TIMER_BOTH, RED_PERIOD);
       break;
-    case GREEN: 
-      cur_color = YELLOW;
-      set_color(cur_color);
+    case GREEN_TF1: 
+      cur_color_1 = YELLOW_TF1;
+      set_color(cur_color_1);
       TimerLoadSet(TIMER0_BASE, TIMER_BOTH, YELLOW_PERIOD);
       break;
   }
 }
 
-void portFInit() {
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF)) {};
-  GPIOUnlockPin(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4);
-  GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4);
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3);
-  GPIOPadConfigSet (GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4,
-  GPIO_STRENGTH_2MA,GPIO_PIN_TYPE_STD_WPU);
-}
-void traffic_delay() {
-  portFInit();
-  reset_color();
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_TIMER0)) {}
-  TimerDisable(TIMER0_BASE, TIMER_BOTH);
-  TimerConfigure(TIMER0_BASE, (TIMER_CFG_PERIODIC));
-  TimerLoadSet(TIMER0_BASE, TIMER_BOTH, period);
-  TimerIntUnregister(TIMER0_BASE, TIMER_BOTH);
-  TimerEnable(TIMER0_BASE, TIMER_BOTH);
-  set_color(GREEN);
-  TimerIntRegister(TIMER0_BASE, TIMER_BOTH, (*Timer0_Handler));
-  TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT | TIMER_TIMB_TIMEOUT);
-  while(1) {
-
+void Timer1_Handler() {
+  TimerIntClear(TIMER1_BASE, TIMER_BOTH);
+  switch(cur_color_2) {
+    case RED_TF2: 
+      cur_color_2 = GREEN_TF2;
+      set_color(cur_color_2);
+      TimerLoadSet(TIMER1_BASE, TIMER_BOTH, GREEN_PERIOD);
+      break;
+    case YELLOW_TF2: 
+      cur_color_2 = RED_TF2;
+      set_color(cur_color_2);
+      TimerLoadSet(TIMER1_BASE, TIMER_BOTH, RED_PERIOD);
+      break;
+    case GREEN_TF2: 
+      cur_color_2 = YELLOW_TF2;
+      set_color(cur_color_2);
+      TimerLoadSet(TIMER1_BASE, TIMER_BOTH, YELLOW_PERIOD);
+      break;
   }
-
 }
+
 
 int main()
 {
-  traffic_delay();
+  PortInit(GPIO_PORTF_BASE, SYSCTL_PERIPH_GPIOF); // Initialize portf
+  PortInit(GPIO_PORTA_BASE, SYSCTL_PERIPH_GPIOA); // Initialize porta
+  __asm("CPSID I"); // Disable all interrupts
+  TimerInit(TIMER0_BASE, Timer0_Handler, SYSCTL_PERIPH_TIMER0, period_1); // Intialize Timer0 with period_1
+  TimerInit(TIMER1_BASE, Timer1_Handler, SYSCTL_PERIPH_TIMER1, period_2); // Intialize Timer1 with period_2
+  __asm("CPSIE I"); // Enable all interrupts
+  while(1) {
+    __asm("wfi"); // power saving mode
+  }
 }
