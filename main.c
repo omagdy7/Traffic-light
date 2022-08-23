@@ -13,4 +13,6 @@ Traffic tf_ped =    {RED   , GPIO_PORTB_BASE, 5, 4, 1};
 int main()
 {
   TrafficInit();
+  // PortInit(GPIO_PORTA_BASE, SYSCTL_PERIPH_GPIOA, 0x0, 0xFF); // Initialize porta
+  // GPIOPinWrite(GPIO_PORTA_BASE, 0xFF, 2);
 }

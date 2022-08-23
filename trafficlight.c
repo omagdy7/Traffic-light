@@ -39,54 +39,11 @@ void TimerInit(uint32_t timer, void(*timer_handler)(), uint32_t clk, uint32_t de
 }
 
 void Timer0_Handler() {
-  TimerIntClear(TIMER0_BASE, TIMER_BOTH);
-  if(switch_pressed) {
-    set_tf_color(tf1, RED);
-  } else {
-    switch(tf1.cur_color) {
-      case RED: 
-        tf1.cur_color = GREEN;
-        set_tf_color(tf1, GREEN);
-        TimerLoadSet(TIMER0_BASE, TIMER_BOTH, GREEN_PERIOD);
-        break;
-      case YELLOW: 
-        tf1.cur_color = RED;
-        set_tf_color(tf1, RED);
-        TimerLoadSet(TIMER0_BASE, TIMER_BOTH, RED_PERIOD);
-        break;
-      case GREEN: 
-        tf1.cur_color = YELLOW;
-        set_tf_color(tf1, YELLOW);
-        TimerLoadSet(TIMER0_BASE, TIMER_BOTH, YELLOW_PERIOD);
-        break;
-    }
-  }
+  Traffic_Handler(&tf1, TIMER0_BASE);
 }
 
 void Timer1_Handler() {
-  TimerIntClear(TIMER1_BASE, TIMER_BOTH);
-  if(switch_pressed) {
-    set_tf_color(tf2, RED);
-  } else {
-    switch(tf2.cur_color) {
-      case RED: 
-        tf2.cur_color = GREEN;
-        set_tf_color(tf2, GREEN);
-        TimerLoadSet(TIMER1_BASE, TIMER_BOTH, GREEN_PERIOD);
-        break;
-      case YELLOW: 
-        tf2.cur_color = RED;
-        set_tf_color(tf2, RED);
-        TimerLoadSet(TIMER1_BASE, TIMER_BOTH, RED_PERIOD);
-        break;
-      case GREEN: 
-        tf2.cur_color = YELLOW;
-        set_tf_color(tf2, YELLOW);
-        TimerLoadSet(TIMER1_BASE, TIMER_BOTH, YELLOW_PERIOD);
-        break;
-    }
-
-  }
+  Traffic_Handler(&tf2, TIMER1_BASE);
 }
 
 void Timer2_Handler() {
@@ -116,8 +73,6 @@ void Timer2_Handler() {
 void Switch_Handler() {
   GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_0);
   switch_pressed = true;
-  tf1.prevPeriod = TimerValueGet(tf1.port, TIMER_A);
-  tf2.prevPeriod = TimerValueGet(tf2.port, TIMER_A);
   TimerDisable(TIMER0_BASE, TIMER_BOTH);
   TimerDisable(TIMER1_BASE, TIMER_BOTH);
   set_tf_color(tf1, RED);
@@ -143,5 +98,30 @@ void TrafficInit() {
   __asm("CPSIE I"); // Enable all interrupts
   while(1) {
     __asm("wfi"); // power saving mode
+  }
+}
+
+void Traffic_Handler(Traffic *tf, uint32_t timer) {
+  TimerIntClear(timer, TIMER_BOTH);
+  if(switch_pressed) {
+    set_tf_color(*tf, RED);
+  } else {
+    switch(tf->cur_color) {
+      case RED: 
+        tf->cur_color = GREEN;
+        set_tf_color(*tf, GREEN);
+        TimerLoadSet(timer, TIMER_BOTH, GREEN_PERIOD);
+        break;
+      case YELLOW: 
+        tf->cur_color = RED;
+        set_tf_color(*tf, RED);
+        TimerLoadSet(timer, TIMER_BOTH, RED_PERIOD);
+        break;
+      case GREEN: 
+        tf->cur_color = YELLOW;
+        set_tf_color(*tf, YELLOW);
+        TimerLoadSet(timer, TIMER_BOTH, YELLOW_PERIOD);
+        break;
+    }
   }
 }

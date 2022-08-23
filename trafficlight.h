@@ -29,6 +29,7 @@ extern uint32_t period_2;
 extern uint32_t period_3;
 
 void TrafficInit();
+void Traffic_Handler(Traffic *tf, uint32_t timer);
 void set_tf_color(Traffic tf, uint8_t color);
 void PortInit(uint32_t port, uint32_t clk, uint32_t input, uint32_t output);
 void TimerInit(uint32_t timer, void(*timer_handler)(), uint32_t clk, uint32_t delay);
