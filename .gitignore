@@ -3,8 +3,8 @@
 *.ewt
 *.ewp
 *.ewd
-./settings/*
-./Debug/*
+settings/
+Debug/
 
 # Prerequisites
 *.d
