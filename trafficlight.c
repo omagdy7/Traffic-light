@@ -60,6 +60,7 @@ void Timer2_Handler() {
       set_tf_color(tf_ped, RED);
       TimerEnable(TIMER0_BASE, TIMER_BOTH);
       TimerEnable(TIMER1_BASE, TIMER_BOTH);
+      // TimerDisable(TIMER2_BASE, TIMER_BOTH);
       switch_pressed = false;
       break;
     case GREEN: 
@@ -79,13 +80,15 @@ void Switch_Handler() {
   set_tf_color(tf2, RED);
   set_tf_color(tf_ped, GREEN);
   tf_ped.cur_color = RED; 
-  TimerInit(TIMER2_BASE, Timer2_Handler, SYSCTL_PERIPH_TIMER2, GREEN_PERIOD); // Intialize Timer2 with period_3
+  TimerInit(TIMER2_BASE, Timer2_Handler, SYSCTL_PERIPH_TIMER2, period_3); // Intialize Timer2 with period_3
 }
 
 void TrafficInit() {
   PortInit(GPIO_PORTF_BASE, SYSCTL_PERIPH_GPIOF, 0x1, 0x7E); // Initialize portf
   PortInit(GPIO_PORTA_BASE, SYSCTL_PERIPH_GPIOA, 0x0, 0xFF); // Initialize porta
   PortInit(GPIO_PORTB_BASE, SYSCTL_PERIPH_GPIOB, 0x0, 0xFF); // Initialize portb
+  PortInit(GPIO_PORTE_BASE, SYSCTL_PERIPH_GPIOE, 0x0, 0xFF); // Initialize portb
+  PortInit(GPIO_PORTD_BASE, SYSCTL_PERIPH_GPIOD, 0x0, 0xFF); // Initialize portb
   __asm("CPSID I"); // Disable all interrupts
   GPIOIntUnregister(GPIO_PORTF_BASE);
   GPIOIntRegister(GPIO_PORTF_BASE, Switch_Handler);
@@ -97,7 +100,11 @@ void TrafficInit() {
   TimerInit(TIMER1_BASE, Timer1_Handler, SYSCTL_PERIPH_TIMER1, period_2); // Intialize Timer1 with period_2
   __asm("CPSIE I"); // Enable all interrupts
   while(1) {
-    __asm("wfi"); // power saving mode
+    BcdWrite(bcd1, TIMER0_BASE, false);
+    BcdWrite(bcd2, TIMER1_BASE, false);
+    if(switch_pressed) {
+      BcdWrite(bcd_ped, TIMER2_BASE, true);
+    } 
   }
 }
 
@@ -123,5 +130,30 @@ void Traffic_Handler(Traffic *tf, uint32_t timer) {
         TimerLoadSet(timer, TIMER_BOTH, YELLOW_PERIOD);
         break;
     }
+  }
+}
+
+void BcdWrite(Bcd bcd, uint32_t timer, bool ped) {
+  uint8_t n = (TimerValueGet(timer, TIMER_A) / TIVA_CLK) + 1;
+  int bin[4];
+  if(ped) {
+    for(int i = 0; i < 4; i++) {
+      bin[i] = n % 2;
+      n /= 2;
+    }
+    // GPIOPinWrite(GPIO_PORTA_BASE, 0xFF, (((bin[1]) << bcd.B) | ((bin[2]) << bcd.C)));
+    DIO_WritePin(&GPIO_PORTA_DATA_R, bcd.A, bin[0]);
+    DIO_WritePin(&GPIO_PORTA_DATA_R, bcd.B, bin[1]);
+    DIO_WritePin(&GPIO_PORTA_DATA_R, bcd.C, bin[2]);
+    GPIOPinWrite(GPIO_PORTE_BASE, 0xFF, (bin[3] << bcd.D));
+  }
+  else {
+    for(int i = 0; i < 4; i++) {
+      bin[i] = n % 2;
+      n /= 2;
+    }
+    GPIOPinWrite(bcd.port, 0xFF, ((bin[0]) << bcd.A) | ((bin[1]) << bcd.B) | (bin[2] << bcd.C) | (bin[3] << bcd.D));
+    // GPIOPinWrite(bcd.port, 0xFF, (1 << bcd.pins[i]));
+
   }
 }
