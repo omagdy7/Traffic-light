@@ -182,7 +182,7 @@ void BcdWrite(Bcd bcd, uint32_t timer, bool ped) {
     DIO_WritePin(&GPIO_PORTA_DATA_R, bcd.A, bin[0]);
     DIO_WritePin(&GPIO_PORTA_DATA_R, bcd.B, bin[1]);
     DIO_WritePin(&GPIO_PORTA_DATA_R, bcd.C, bin[2]);
-    GPIOPinWrite(GPIO_PORTE_BASE, 0xFF, (bin[3] << bcd.D));
+    DIO_WritePin(&GPIO_PORTE_DATA_R, bcd.C, bin[3]);
   }
   else {
     for(int i = 0; i < 4; i++) {
