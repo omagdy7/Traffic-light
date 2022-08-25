@@ -100,18 +100,18 @@ void Timer2_Handler() {
 }
 
 void Switch_Handler() {
-  GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_0);
-  switch_pressed = true;
-  // Disable the timers of both tf1 and tf2
-  TimerDisable(tf1.timer, TIMER_BOTH);
-  TimerDisable(tf2.timer, TIMER_BOTH);
-  // set both traffic light to red
-  set_tf_color(tf1, RED);
-  set_tf_color(tf2, RED);
-  // set pedestrian traffic light to green
-  set_tf_color(tf_ped, GREEN);
-  tf_ped.cur_color = RED; 
-  TimerInit(tf_ped.timer, Timer2_Handler, SYSCTL_PERIPH_TIMER2, period_3); // Intialize Timer2 with period_3
+    GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_0);
+    switch_pressed = true;
+    // Disable the timers of both tf1 and tf2
+    TimerDisable(tf1.timer, TIMER_BOTH);
+    TimerDisable(tf2.timer, TIMER_BOTH);
+    // set both traffic light to red
+    set_tf_color(tf1, RED);
+    set_tf_color(tf2, RED);
+    // set pedestrian traffic light to green
+    set_tf_color(tf_ped, GREEN);
+    tf_ped.cur_color = RED; 
+    TimerInit(tf_ped.timer, Timer2_Handler, SYSCTL_PERIPH_TIMER2, period_3); // Intialize Timer2 with period_3
 }
 
 void TrafficInit() {
@@ -122,9 +122,9 @@ void TrafficInit() {
   GPIOIntEnable(GPIO_PORTF_BASE, GPIO_INT_PIN_0); // Enable interrupts for pin0 of portf
 	GPIOIntTypeSet(GPIO_PORTF_BASE, GPIO_PIN_0, GPIO_RISING_EDGE); // Make interrupts happen with rising edge
 	IntEnable(INT_GPIOF_TM4C123); // Enable CPU interrupts
-  IntMasterEnable();
   TimerInit(tf1.timer, Timer0_Handler, SYSCTL_PERIPH_TIMER0, period_1); // Intialize Timer0 with period_1
   TimerInit(tf2.timer, Timer1_Handler, SYSCTL_PERIPH_TIMER1, period_2); // Intialize Timer1 with period_2
+  IntMasterEnable();
   __asm("CPSIE I"); // Enable all interrupts
   while(1) {
     if(switch_pressed) {
@@ -182,7 +182,7 @@ void BcdWrite(Bcd bcd, uint32_t timer, bool ped) {
     DIO_WritePin(&GPIO_PORTA_DATA_R, bcd.A, bin[0]);
     DIO_WritePin(&GPIO_PORTA_DATA_R, bcd.B, bin[1]);
     DIO_WritePin(&GPIO_PORTA_DATA_R, bcd.C, bin[2]);
-    DIO_WritePin(&GPIO_PORTE_DATA_R, bcd.C, bin[3]);
+    DIO_WritePin(&GPIO_PORTE_DATA_R, bcd.D, bin[3]);
   }
   else {
     for(int i = 0; i < 4; i++) {
